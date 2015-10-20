@@ -7,7 +7,6 @@
 Install [Golang](https://golang.org/doc/install) and:
 
     make install
-    make build
 
 ```hacher``` needs several environment variables to operate:
 
