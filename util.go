@@ -8,7 +8,9 @@ import (
 )
 
 func printInfo(message string, args ...interface{}) {
-	logger.Println(colorizeMessage("green", "info:", message, args...))
+	if verbose {
+		logger.Println(colorizeMessage("green", "info:", message, args...))
+	}
 }
 
 func printFatal(message string, args ...interface{}) {

@@ -13,7 +13,8 @@ const (
 )
 
 var (
-	logger = log.New(os.Stderr, "", 0)
+	logger  = log.New(os.Stderr, "", 0)
+	verbose = false
 
 	CachePath = os.Getenv("HACHER_PATH")
 	CacheKeep = 3
@@ -43,6 +44,13 @@ func main() {
 	app.Version = "0.1.0"
 
 	// Alphabetically ordered list of commands
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "verbose, x",
+			Usage: "Verbose mode",
+		},
+	}
+
 	app.Commands = []cli.Command{
 
 		{

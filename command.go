@@ -13,6 +13,8 @@ import (
 
 func cmdGet(c *cli.Context) {
 
+	verbose = c.GlobalBool("verbose")
+
 	path := c.Args().Get(0)
 	key := c.String("key")
 	file := c.String("file")
@@ -52,6 +54,8 @@ func cmdGet(c *cli.Context) {
 }
 
 func cmdSet(c *cli.Context) {
+
+	verbose = c.GlobalBool("verbose")
 
 	path := c.Args().Get(0)
 	key := c.String("key")
