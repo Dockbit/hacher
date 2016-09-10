@@ -40,7 +40,7 @@ func main() {
 	app.Name = "Hacher"
 	app.Usage = "A simple CLI tool to cache project artifacts."
 	app.Author = "The Dockbit Team"
-	app.Email = "hello@dockbit.com"
+	app.Email = "team@dockbit.com"
 	app.Version = "0.1.0"
 
 	// Alphabetically ordered list of commands
