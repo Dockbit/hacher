@@ -104,7 +104,7 @@ func cmdSet(c *cli.Context) {
 		err := exec.Command("tar", args...).Run()
 		checkError(err)
 	}
-	go clean(key)
+	clean(key)
 }
 
 /*
