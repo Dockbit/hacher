@@ -102,7 +102,7 @@ func cmdSet(c *cli.Context) {
  */
 func checksum(files []string, envs []string) string {
 	if len(files[0]) < 1 {
-		printFatal("At least one dependency file is not provided.")
+		printFatal("At least one dependency file is required.")
 	}
 
 	var buffer bytes.Buffer
