@@ -1,6 +1,6 @@
 # Hacher :hocho:
 
-```hacher``` is a simple CLI tool to cache project artifacts. It tracks the changes to a dependency file, and if changed caches related artifacts directory. For example, you could cache ```bundle``` directory on [Gemfile](http://bundler.io/man/gemfile.5.html) changes or a ```node_modules``` when [package.json](https://docs.npmjs.com/files/package.json) changes.
+```hacher``` is a simple CLI tool to cache project artifacts. It tracks the changes to one or more dependency files, and if any of them has changed, caches related artifacts directory. For example, you could cache ```bundle``` directory on [Gemfile](http://bundler.io/man/gemfile.5.html) changes or a ```node_modules``` when [package.json](https://docs.npmjs.com/files/package.json) changes.
 
 ## Installation
 
