@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"bytes"
+	"sort"
 )
 
 func cmdGet(c *cli.Context) {
@@ -104,6 +105,7 @@ func checksum(files []string) string {
 
 	var filesBuffer bytes.Buffer
 
+	sort.Strings(files)
 	for _, file := range files {
 		if _, err := os.Stat(file); os.IsNotExist(err) {
 			printFatal("Dependency file '%s' does not exist.", file)
