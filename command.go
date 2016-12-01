@@ -20,6 +20,7 @@ func cmdGet(c *cli.Context) {
 	path := c.Args().Get(0)
 	key := c.String("key")
 	files := strings.Split(c.String("file"), ",")
+	envs := strings.Split(c.String("env"), ",")
 
 	if len(path) < 1 {
 		path = "." // default to current directory
@@ -28,7 +29,7 @@ func cmdGet(c *cli.Context) {
 	if len(key) < 1 {
 		key = strings.ToLower(filepath.Base(files[0]))
 	}
-	hash := checksum(files)
+	hash := checksum(files, envs)
 	fullPath := filepath.Join(CachePath, strings.Join([]string{key, hash}, "-")) + ".tar.gz"
 
 	// get cache if exists
@@ -54,6 +55,7 @@ func cmdSet(c *cli.Context) {
 	path := c.Args().Get(0)
 	key := c.String("key")
 	files := strings.Split(c.String("file"), ",")
+	envs := strings.Split(c.String("env"), ",")
 
 	if len(path) < 1 {
 		printFatal("Path to content is not provided as an argument.")
@@ -74,7 +76,7 @@ func cmdSet(c *cli.Context) {
 		key = strings.ToLower(filepath.Base(files[0]))
 	}
 
-	hash := checksum(files)
+	hash := checksum(files, envs)
 	fullPath := filepath.Join(CachePath, strings.Join([]string{key, hash}, "-")) + ".tar.gz"
 
 	// cache contents only if it doesn't exist already
@@ -94,17 +96,18 @@ func cmdSet(c *cli.Context) {
 }
 
 /*
- * Calculates SHA256 checksum of an array of files
+ * Calculates SHA256 checksum of an array of files and/or env vars
  *
  * Returns The String checksum of all files
  */
-func checksum(files []string) string {
+func checksum(files []string, envs []string) string {
 	if len(files) < 1 {
 		printFatal("At least one dependency file is not provided.")
 	}
 
-	var filesBuffer bytes.Buffer
+	var buffer bytes.Buffer
 
+	// first go thru files
 	sort.Strings(files)
 	for _, file := range files {
 		if _, err := os.Stat(file); os.IsNotExist(err) {
@@ -112,10 +115,20 @@ func checksum(files []string) string {
 		}
 		contents, err := ioutil.ReadFile(file)
 		checkError(err)
-		filesBuffer.Write(contents)
+		buffer.Write(contents)
 	}
+
+	// then check any environment variables
+	sort.Strings(envs)
+	for _, v := range envs {
+		envVar := os.Getenv(v)
+		if len(envVar) > 0 {
+			buffer.WriteString(envVar)
+		}
+	}
+
 	hasher := sha256.New()
-	hasher.Write(filesBuffer.Bytes())
+	hasher.Write(buffer.Bytes())
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 

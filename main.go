@@ -66,7 +66,12 @@ func main() {
 
 				cli.StringFlag{
 					Name:  "f, file",
-					Usage: "Path to comma-separated depdendency file(s) to track for changes.",
+					Usage: "Path to comma-separated dependency file(s) to track for changes.",
+				},
+
+				cli.StringFlag{
+					Name:  "e, env",
+					Usage: "Comma-separated dependency env variable(s) to track for changes.",
 				},
 			},
 		},
@@ -83,7 +88,12 @@ func main() {
 
 				cli.StringFlag{
 					Name:  "f, file",
-					Usage: "Path to comma-separated depdendency file(s) to track for changes.",
+					Usage: "Path to comma-separated dependency file(s) to track for changes.",
+				},
+
+				cli.StringFlag{
+					Name:  "e, env",
+					Usage: "Comma-separated dependency env variable(s) to track for changes.",
 				},
 			},
 		},
