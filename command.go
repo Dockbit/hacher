@@ -101,7 +101,7 @@ func cmdSet(c *cli.Context) {
  * Returns The String checksum of all files
  */
 func checksum(files []string, envs []string) string {
-	if len(files) < 1 {
+	if len(files[0]) < 1 {
 		printFatal("At least one dependency file is not provided.")
 	}
 
