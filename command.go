@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"bytes"
+	"sort"
 )
 
 func cmdGet(c *cli.Context) {
@@ -17,24 +19,17 @@ func cmdGet(c *cli.Context) {
 
 	path := c.Args().Get(0)
 	key := c.String("key")
-	file := c.String("file")
+	files := strings.Split(c.String("file"), ",")
+	envs := strings.Split(c.String("env"), ",")
 
 	if len(path) < 1 {
 		path = "." // default to current directory
 	}
 
-	if len(file) < 1 {
-		printFatal("Dependency file is not provided.")
-	}
-
-	if _, err := os.Stat(file); os.IsNotExist(err) {
-		printFatal("Dependency file '%s' does not exist.", file)
-	}
-
 	if len(key) < 1 {
-		key = strings.ToLower(filepath.Base(file))
+		key = strings.ToLower(filepath.Base(files[0]))
 	}
-	hash := checksum(file)
+	hash := checksum(files, envs)
 	fullPath := filepath.Join(CachePath, strings.Join([]string{key, hash}, "-")) + ".tar.gz"
 
 	// get cache if exists
@@ -59,7 +54,8 @@ func cmdSet(c *cli.Context) {
 
 	path := c.Args().Get(0)
 	key := c.String("key")
-	file := c.String("file")
+	files := strings.Split(c.String("file"), ",")
+	envs := strings.Split(c.String("env"), ",")
 
 	if len(path) < 1 {
 		printFatal("Path to content is not provided as an argument.")
@@ -67,14 +63,6 @@ func cmdSet(c *cli.Context) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		printFatal("Content '%s' does not exist.", path)
-	}
-
-	if len(file) < 1 {
-		printFatal("Dependency file is not provided.")
-	}
-
-	if _, err := os.Stat(file); os.IsNotExist(err) {
-		printFatal("Dependency file '%s' does not exist.", file)
 	}
 
 	if _, err := os.Stat(CachePath); os.IsNotExist(err) {
@@ -85,10 +73,10 @@ func cmdSet(c *cli.Context) {
 	}
 
 	if len(key) < 1 {
-		key = strings.ToLower(filepath.Base(file))
+		key = strings.ToLower(filepath.Base(files[0]))
 	}
 
-	hash := checksum(file)
+	hash := checksum(files, envs)
 	fullPath := filepath.Join(CachePath, strings.Join([]string{key, hash}, "-")) + ".tar.gz"
 
 	// cache contents only if it doesn't exist already
@@ -108,14 +96,39 @@ func cmdSet(c *cli.Context) {
 }
 
 /*
- * Calculates SHA256 checksum of a file
+ * Calculates SHA256 checksum of an array of files and/or env vars
+ *
+ * Returns The String checksum of all files
  */
-func checksum(file string) string {
-	hasher := sha256.New()
-	contents, err := ioutil.ReadFile(file)
-	checkError(err)
+func checksum(files []string, envs []string) string {
+	if len(files[0]) < 1 {
+		printFatal("At least one dependency file is required.")
+	}
 
-	hasher.Write(contents)
+	var buffer bytes.Buffer
+
+	// first go thru files
+	sort.Strings(files)
+	for _, file := range files {
+		if _, err := os.Stat(file); os.IsNotExist(err) {
+			printFatal("Dependency file '%s' does not exist.", file)
+		}
+		contents, err := ioutil.ReadFile(file)
+		checkError(err)
+		buffer.Write(contents)
+	}
+
+	// then check any environment variables
+	sort.Strings(envs)
+	for _, v := range envs {
+		envVar := os.Getenv(v)
+		if len(envVar) > 0 {
+			buffer.WriteString(envVar)
+		}
+	}
+
+	hasher := sha256.New()
+	hasher.Write(buffer.Bytes())
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
